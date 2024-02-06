@@ -18,14 +18,8 @@ jobs:
       uses: actions/setup-node@v4   
       with:
         node-version: '20.10.x'
-     
-
     - name: Install dependencies
       run: npm install
-
-    - name: Deploy to Azure Web App
-      run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
-
     - name: Deploy to Azure Web App
       uses: azure/webapps-deploy@v2
       with:

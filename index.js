@@ -1,7 +1,9 @@
 const express = require('express');
 const userApi = require('./api/userApi');
-
+const User = require('./models/userModel.js');
+const Position = require('./models/postionModel.js');
 const app = express();
+const { createMultipleUsers } = require('./test/puplerdatabase.js');
 app.use(express.json()); // for parsing application/json
 
 // Middleware pour autoriser les requêtes CORS
@@ -14,7 +16,10 @@ app.use((req, res, next) => {
 
 app.use('/api/users', userApi);
 
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+
+

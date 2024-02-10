@@ -1,6 +1,5 @@
 const Sequelize = require('sequelize');
 const sequelize = require('./../sequelize.js');
-
 const User = sequelize.define('User', {
     // Map Sequelize model attributes to table column names
     userID: {
@@ -32,9 +31,16 @@ const User = sequelize.define('User', {
     biography: {
         type: Sequelize.TEXT,
         field: 'Biography'  // Column name in the database
-    }
-}, {
+    },
+    role: {
+        type: Sequelize.ENUM('CONDUCTEUR', 'PASSAGER', 'BOTH'),
+        field: 'Role'  // Column name in the database
+    },
+},
+ {
     timestamps: false, // Disable automatic timestamps
-});
+},);
+
+
 
 module.exports = User;

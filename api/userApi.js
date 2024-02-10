@@ -2,12 +2,24 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/userModel');
 const { authenticateToken } = require('./loginApi'); // Assurez-vous que le chemin est correct
+const bcrypt = require('bcrypt');
 
-// Create a new user
 router.post('/', async (req, res) => {
     try {
+        // Récupérez le mot de passe de la requête
+        const { password } = req.body;
+
+        const salt = await bcrypt.genSalt(10);
+
+        const hashedPassword = await bcrypt.hash(password, salt);
+
+        req.body.password = hashedPassword;
+
         const newUser = await User.create(req.body);
-        res.status(201).json(newUser);
+
+        const userToReturn = { ...newUser.toJSON() };
+        delete userToReturn.password;
+        res.status(201).json(userToReturn);
     } catch (error) {
         res.status(400).json({ error: error.message });
     }

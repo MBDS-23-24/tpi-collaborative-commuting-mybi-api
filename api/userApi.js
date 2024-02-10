@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/userModel');
-
+const { authenticateToken } = require('./loginApi'); // Assurez-vous que le chemin est correct
 
 // Create a new user
 router.post('/', async (req, res) => {
@@ -14,7 +14,7 @@ router.post('/', async (req, res) => {
 });
 
 // Get all users
-router.get('/', async (req, res) => {
+router.get('/',authenticateToken, async (req, res) => {
     try {
         const users = await User.findAll();
         res.json(users);

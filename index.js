@@ -1,5 +1,7 @@
+require('dotenv').config();
 const express = require('express');
 const userApi = require('./api/userApi');
+const { router: loginApi, authenticateToken } = require('./api/loginApi'); // Modification ici
 const User = require('./models/userModel.js');
 const Position = require('./models/postionModel.js');
 const app = express();
@@ -15,6 +17,7 @@ app.use((req, res, next) => {
   });
 
 app.use('/api/users', userApi);
+app.use('',loginApi);
 
 
 const PORT = process.env.PORT || 3000;

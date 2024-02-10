@@ -10,7 +10,7 @@ async function createUserWithPosition() {
         const user = await User.create({
             firstName: `FirstName${Math.random()}`,
             lastName: `LastName${Math.random()}`,
-            email: `user${Math.random()}@example.com`,
+            email: `user@example.com`,
             password: 'password', // Utilisez une méthode de hachage sécurisée dans la production
             photoURL: 'http://example.com/photo.jpg',
             biography: 'Biography example',
@@ -43,4 +43,5 @@ async function createMultipleUsers(numberOfUsers) {
 createMultipleUsers(100).then(() => {
     console.log('100 utilisateurs et leurs positions ont été créés.');
   });
+  
   

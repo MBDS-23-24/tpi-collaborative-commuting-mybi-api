@@ -20,7 +20,7 @@ router.post('/login', async (req, res) => {
     }
 
     // Vérification du mot de passe (assurez-vous que le mot de passe dans la base est hashé)
-    //const validPassword = await bcrypt.compare(password, user.password);
+    const validPassword = await bcrypt.compare(password, user.password);
     if (!validPassword) {
       return res.status(401).json({ message: 'Mot de passe incorrect' });
     //
@@ -32,6 +32,7 @@ router.post('/login', async (req, res) => {
 
     const accessToken = jwt.sign({ userId: user.userID }, process.env.ACCESS_TOKEN_SECRET);
     const refreshToken = jwt.sign({ userId: user.userID }, process.env.REFRESH_TOKEN_SECRET);
+    console.log(refreshToken); 
     console.log(accessToken); 
     res.json({ accessToken });
     validRefreshTokens.push(refreshToken);
@@ -41,15 +42,17 @@ router.post('/login', async (req, res) => {
   }
 });
 
+// Middleware pour vérifier le token
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
-  if (token == null) return res.sendStatus(401);
+  
+  if (token == null) return res.sendStatus(401); // Pas de token
 
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-    if (err) return res.sendStatus(403);
+    if (err) return res.sendStatus(403); // Token invalide ou expiré
     req.user = user;
-    next();
+    next(); // Continue avec la requête
   });
 }
 
@@ -62,7 +65,7 @@ router.post('/token', (req, res) => {
 
   jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
       if (err) return res.sendStatus(403);
-      const accessToken = jwt.sign({ userId: user.userId }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15s' });
+      const accessToken = jwt.sign({ userId: user.userId }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: ' ' });
       res.json({ accessToken });
   });
 });

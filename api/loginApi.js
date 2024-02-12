@@ -30,11 +30,11 @@ router.post('/login', async (req, res) => {
     console.log(process.env.ACCESS_TOKEN_SECRET);
     console.log( user.userID );
 
-    const accessToken = jwt.sign({ userId: user.userID }, process.env.ACCESS_TOKEN_SECRET);
+    const accessToken = jwt.sign({ userId: user.userID }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '30m' });
     const refreshToken = jwt.sign({ userId: user.userID }, process.env.REFRESH_TOKEN_SECRET);
     console.log(refreshToken); 
     console.log(accessToken); 
-    res.json({ accessToken });
+    res.json({ accessToken ,user});
     validRefreshTokens.push(refreshToken);
 
   } catch (error) {
@@ -65,7 +65,7 @@ router.post('/token', (req, res) => {
 
   jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
       if (err) return res.sendStatus(403);
-      const accessToken = jwt.sign({ userId: user.userId }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: ' ' });
+      const accessToken = jwt.sign({ userId: user.userId }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '10s' });
       res.json({ accessToken });
   });
 });

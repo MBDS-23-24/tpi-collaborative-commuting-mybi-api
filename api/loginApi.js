@@ -37,7 +37,7 @@ router.post('/login', async (req, res) => {
     res.json({ accessToken ,user});
     validRefreshTokens.push(refreshToken);
 
-  } catch (error) {
+  } catch (error) { 
     res.status(500).json({ message: 'Erreur lors de la connexion' });
   }
 });

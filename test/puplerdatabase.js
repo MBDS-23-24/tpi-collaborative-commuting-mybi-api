@@ -36,7 +36,7 @@ async function createUserWithPosition() {
             userID: user.userID 
         });
 
-        console.log(`Utilisateur créé avec l'ID: ${user.userID}, Position créée avec l'ID: ${position.positionID}`);
+        //console.log(`Utilisateur créé avec l'ID: ${user.userID}, Position créée avec l'ID: ${position.positionID}`);
     } catch (error) {
         console.error('Erreur lors de la création de l’utilisateur et de la position :', error);
     }

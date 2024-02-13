@@ -80,7 +80,10 @@ router.delete('/:id', async (req, res) => {
     } catch (error) {
         console.error('Error:', error); // Log the error to the console
         res.status(500).json({ error: error.message || 'Internal Server Error' });    }
-});
+}); 
+
+
 
 
 module.exports = router;
+            

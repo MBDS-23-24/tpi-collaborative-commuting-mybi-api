@@ -36,7 +36,7 @@ router.get('/',authenticateToken, async (req, res) => {
 });
 
 // Get a single user by ID
-router.get('/:id', async (req, res) => {
+router.get('/:id', authenticateToken, async (req, res) => {
     try {
         const user = await User.findByPk(req.params.id);
         if (user) {
@@ -50,7 +50,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Update a user
-router.put('/:id', async (req, res) => {
+router.put('/:id', authenticateToken,async (req, res) => {
     try {
         const updated = await User.update(req.body, {
             where: { id: req.params.id }
@@ -67,7 +67,7 @@ router.put('/:id', async (req, res) => {
 });
 
 // Delete a user
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authenticateToken,async (req, res) => {
     try {
         const deleted = await User.destroy({
             where: { id: req.params.id }

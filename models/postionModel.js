@@ -1,4 +1,4 @@
-const sequelize = require("../sequelize");
+const sequelize = require('./../sequelize.js');
 const Sequelize = require('sequelize'); // Importation de Sequelize
 const User = require('./userModel');
 // Nouveau modèle Position

@@ -2,11 +2,13 @@ require('dotenv').config();
 const express = require('express');
 const http = require('http');
 const userApi = require('./api/userApi');
+const messageApi = require('./api/messageApi');
+
 const { router: loginApi, authenticateToken } = require('./api/loginApi'); // Modification ici
 const User = require('./models/userModel.js');
 const Position = require('./models/postionModel.js');
 const app = express();
-const { createMultipleUsers } = require('./test/puplerdatabase.js');
+//const { createMultipleUsers } = require('./test/puplerdatabase.js');
 // WebSocket 
 
 const server = http.createServer(app);
@@ -29,6 +31,7 @@ app.use((req, res, next) => {
 // la partie de les api
 app.use('/api/users', userApi);
 app.use('',loginApi);
+app.use('/api/messages', messageApi);
 
 
 // la partie de WebSocket 

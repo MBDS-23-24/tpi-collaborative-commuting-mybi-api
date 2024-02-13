@@ -13,7 +13,7 @@ const sequelize = new Sequelize('commutingDB', 'commutingAdmin', 'badisBoucheffa
 // Importation des modèles
 
 
-sequelize.sync({ force: true }) // Set force to true only if you want to drop and recreate tables
+sequelize.sync({ force: false }) // Set force to true only if you want to drop and recreate tables
     .then(() => {
         console.log('Database & tables created!');
     });

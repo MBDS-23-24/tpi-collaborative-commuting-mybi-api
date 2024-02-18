@@ -33,27 +33,38 @@ app.use('/api/users', userApi);
 app.use('',loginApi);
 app.use('/api/messages', messageApi);
 
-
-// la partie de WebSocket 
 io.on('connection', (socket) => {
-  clients[socket.id] = socket;
-  console.log('Client connecté:', socket.id);
-
-  socket.on('disconnect', () => {
-      delete clients[socket.id];
-      console.log('Client déconnecté:', socket.id);
+    console.log('Client connecté:', socket.id);
+  
+    // Enregistrer le client en utilisant l'ID de socket comme clé
+    clients[socket.id] = socket;
+  
+    // Gérer l'événement "signin"
+    socket.on("signin", (userId) => {
+      // Associer l'ID utilisateur au socket pour un accès facile
+      clients[userId] = socket;
+      console.log(`Utilisateur ${userId} connecté avec socket ${socket.id}`);
+    });
+  
+    socket.on('disconnect', () => {
+        // Supprimer le client sur la déconnexion
+        delete clients[socket.id];
+        console.log('Client déconnecté:', socket.id);
+    });
+  
+    socket.on('message', ({ toId, message }) => {
+        console.log(`Message de ${socket.id} à ${toId}:`, message);
+        // Envoyer le message au destinataire si disponible
+        if (clients[toId]) {
+            clients[toId].emit('message', { fromId: socket.id, message });
+        } else {
+            console.log(`Le destinataire ${toId} n'est pas connecté.`);
+        }
+    });
   });
-
-  socket.on('message', ({ toId, message }) => {
-      console.log(`Message reçu de ${socket.id} à ${toId}:`, message);
-      if (clients[toId]) {
-          clients[toId].emit('message', { fromId: socket.id, message });
-      }
-  });
-});
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
 

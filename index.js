@@ -52,13 +52,13 @@ io.on('connection', (socket) => {
         console.log('Client déconnecté:', socket.id);
     });
   
-    socket.on('message', ({ toId, message }) => {
-        console.log(`Message de ${socket.id} à ${toId}:`, message);
+    socket.on('message', (/*{ toId, message }*/message) => {
+        console.log(`Message de ${message.sourceId} à ${message.targetId}:`, message.message);
         // Envoyer le message au destinataire si disponible
-        if (clients[toId]) {
-            clients[toId].emit('message', { fromId: socket.id, message });
+        if (clients[message.targetId]) {
+            clients[message.targetId].emit('message', /*{ fromId: message.sourceId, message }*/ message);
         } else {
-            console.log(`Le destinataire ${toId} n'est pas connecté.`);
+            console.log(`Le destinataire ${message.targetId} n'est pas connecté.`);
         }
     });
   });

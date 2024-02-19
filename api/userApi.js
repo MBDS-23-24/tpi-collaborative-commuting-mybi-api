@@ -53,7 +53,7 @@ router.get('/:id', authenticateToken, async (req, res) => {
 router.put('/:id', authenticateToken,async (req, res) => {
     try {
         const updated = await User.update(req.body, {
-            where: { id: req.params.id }
+            where: { userID: req.params.id }
         });
         if (updated) {
             const updatedUser = await User.findByPk(req.params.id);
@@ -70,7 +70,7 @@ router.put('/:id', authenticateToken,async (req, res) => {
 router.delete('/:id', authenticateToken,async (req, res) => {
     try {
         const deleted = await User.destroy({
-            where: { id: req.params.id }
+            where: { userID: req.params.id }
         });
         if (deleted) {
             res.status(204).send('User deleted');

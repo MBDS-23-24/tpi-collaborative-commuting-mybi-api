@@ -40,7 +40,7 @@ const User = sequelize.define('User', {
  {
     timestamps: false, // Disable    automatic timestamps
 },);
-
+User.removeAttribute('id');
 
 
 module.exports = User;

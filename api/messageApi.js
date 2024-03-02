@@ -26,6 +26,7 @@ router.get('/getLatestMessages/:userId', authenticateToken, async (req, res) => 
         const latestMessages = await Message.findAll({
             attributes: [
                 [Sequelize.fn('max', Sequelize.col('timestamp')), 'latestTimestamp'],
+                [Sequelize.fn('max', Sequelize.col('Content')), 'content'],
                 'senderId',
                 'receiverId',
             ],

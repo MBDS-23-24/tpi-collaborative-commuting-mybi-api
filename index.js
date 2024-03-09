@@ -79,6 +79,8 @@ io.on('connection', (socket) => {
     });
 
     socket.on('addRequest', (data) => {
+      console.log('addRequest: ', data);
+
       const newRequest = { ...data, time: new Date(), status: 'pending', type: data.type };
       addRequest(newRequest);
     });

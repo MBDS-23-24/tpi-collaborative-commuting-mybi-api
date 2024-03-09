@@ -115,6 +115,7 @@ io.on('connection', (socket) => {
   
     socket.on('getDrivers', ({ originLat, originLong, destinationLat, destinationLong }) => {
       const filteredDrivers = filterDriversByOriginAndDestination(originLat, originLong, destinationLat, destinationLong);
+      console.log('Je suis entreeeeeeeeeeeee');
       socket.emit('drivers', filteredDrivers);
     });
   

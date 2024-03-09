@@ -44,6 +44,11 @@ app.use('/api/avis', avisApi);
 app.use('',loginApi);
 app.use('/api/messages', messageApi);
 
+// Express route to serve static files or other routes if needed
+app.get('/', (req, res) => {
+  res.send('Hello World!');
+});
+
 io.on('connection', (socket) => {
     console.log('Client connecté:', socket.id);
   
@@ -72,9 +77,99 @@ io.on('connection', (socket) => {
             console.log(`Le destinataire ${message.targetId} n'est pas connecté.`);
         }
     });
+
+    socket.on('addRequest', (data) => {
+      const newRequest = { ...data, time: new Date(), status: 'pending', type: data.type };
+      addRequest(newRequest);
+    });
+  
+    socket.on('addFakeRequest', (data) => {
+      if (data.type === 'driver') {
+        addRequest(data);
+      } else {
+        console.log('Invalid fake request type');
+      }
+    });
+  
+    socket.on('deletePassenger', (userId) => {
+      const index = passengers.findIndex((passenger) => passenger.userId === userId);
+      if (index !== -1) {
+        const deletedPassenger = passengers[index];
+        passengers.splice(index, 1);
+        return deletedPassenger;
+      } else {
+        return null;
+      }
+    });
+  
+    socket.on('deleteDriver', (userId) => {
+      const index = drivers.findIndex((driver) => driver.userId === userId);
+      if (index !== -1) {
+        const deletedDriver = drivers[index];
+        drivers.splice(index, 1);
+        return deletedDriver;
+      } else {
+        return null;
+      }
+    });
+  
+    socket.on('getDrivers', ({ originLat, originLong, destinationLat, destinationLong }) => {
+      const filteredDrivers = filterDriversByOriginAndDestination(originLat, originLong, destinationLat, destinationLong);
+      socket.emit('drivers', filteredDrivers);
+    });
+  
+    socket.on('getPassengers', ({ originLat, originLong, destinationLat, destinationLong }) => {
+      const filteredPassengers = filterPassengersByOriginAndDestination(originLat, originLong, destinationLat, destinationLong);
+      socket.emit('passengers', filteredPassengers);
+      console.log('Filtered passengers:', filteredRequests);
+  
+     // socket.emit('callDrivers', filteredPassengers);
+  
+    });
+  
+    socket.on('getAllDrivers', () => {
+      socket.emit('allDrivers', drivers);
+    });
+
+    // Handle ride request from passenger to driver
+    socket.on('requestRide', (data) => {
+      const { driverId, passengerId, originLat, originLong, destinationLat, destinationLong } = data;
+      console.log('requestRide:', driverId);
+      //socket.emit('hak', data);
+     // socket.emit('SendrideRequest', data);
+  
+      addRideRequest(passengerId, driverId, originLat, originLong, destinationLat, destinationLong);
+  
+    });
+  
+    socket.on('getDriverRequests', (driverId) => {
+  
+      const requests = getRideRequestsForDriver(driverId);
+    //  console.log('Driver getRideRequestsForDriver:', requests);
+  
+      socket.emit('driverRequests', requests);
+     // socket.emit('callDrivers', requests);
+     console.log('Driver response:', driverId);
+  
+  
+    });
+    socket.on('SendrideRequest', (data) => {
+      // Handle the driver's response here
+      //console.log('Driver response:', data);
+      socket.emit('hak', data);
+  
+      // You can send the response back to the passenger or perform any other actions as needed
+    });
+    socket.on('callme', (data) => {
+      // Handle the driver's response here
+     console.log('callDriverscallDriverscallDriverscallDrivers:', data);
+      socket.emit('callDrivers', data);
+  
+      // You can send the response back to the passenger or perform any other actions as needed
+    });
   });
 
-  // ********************************************     Map     ********************************************
+  // ********************************************    Functions of Map     ********************************************
 
   function addRideRequest(passengerId, driverId, originLat, originLong, destinationLat, destinationLong) {
     // Find the driver and passenger by their IDs
@@ -158,112 +253,6 @@ io.on('connection', (socket) => {
     });
   }
   
-  // Express route to serve static files or other routes if needed
-  app.get('/', (req, res) => {
-    res.send('Hello World!');
-  });
-  
-  // Socket.io connection handling
-  io.on('connection', (socket) => {
-    console.log('A client connected');
-  
-    socket.on('addRequest', (data) => {
-      const newRequest = { ...data, time: new Date(), status: 'pending', type: data.type };
-      addRequest(newRequest);
-    });
-  
-    socket.on('addFakeRequest', (data) => {
-      if (data.type === 'driver') {
-        addRequest(data);
-      } else {
-        console.log('Invalid fake request type');
-      }
-    });
-  
-    socket.on('deletePassenger', (userId) => {
-      const index = passengers.findIndex((passenger) => passenger.userId === userId);
-      if (index !== -1) {
-        const deletedPassenger = passengers[index];
-        passengers.splice(index, 1);
-        return deletedPassenger;
-      } else {
-        return null;
-      }
-    });
-  
-    socket.on('deleteDriver', (userId) => {
-      const index = drivers.findIndex((driver) => driver.userId === userId);
-      if (index !== -1) {
-        const deletedDriver = drivers[index];
-        drivers.splice(index, 1);
-        return deletedDriver;
-      } else {
-        return null;
-      }
-    });
-  
-    socket.on('getDrivers', ({ originLat, originLong, destinationLat, destinationLong }) => {
-      const filteredDrivers = filterDriversByOriginAndDestination(originLat, originLong, destinationLat, destinationLong);
-      socket.emit('drivers', filteredDrivers);
-    });
-  
-    socket.on('getPassengers', ({ originLat, originLong, destinationLat, destinationLong }) => {
-      const filteredPassengers = filterPassengersByOriginAndDestination(originLat, originLong, destinationLat, destinationLong);
-      socket.emit('passengers', filteredPassengers);
-      console.log('Filtered passengers:', filteredRequests);
-  
-     // socket.emit('callDrivers', filteredPassengers);
-  
-    });
-  
-    socket.on('getAllDrivers', () => {
-      socket.emit('allDrivers', drivers);
-    });
-  
-    socket.on('disconnect', () => {
-      console.log('A client disconnected');
-    });
-  
-  
-    // Handle ride request from passenger to driver
-    socket.on('requestRide', (data) => {
-      const { driverId, passengerId, originLat, originLong, destinationLat, destinationLong } = data;
-      console.log('requestRide:', driverId);
-      //socket.emit('hak', data);
-     // socket.emit('SendrideRequest', data);
-  
-      addRideRequest(passengerId, driverId, originLat, originLong, destinationLat, destinationLong);
-  
-    });
-  
-    socket.on('getDriverRequests', (driverId) => {
-  
-      const requests = getRideRequestsForDriver(driverId);
-    //  console.log('Driver getRideRequestsForDriver:', requests);
-  
-      socket.emit('driverRequests', requests);
-     // socket.emit('callDrivers', requests);
-     console.log('Driver response:', driverId);
-  
-  
-    });
-    socket.on('SendrideRequest', (data) => {
-      // Handle the driver's response here
-      //console.log('Driver response:', data);
-      socket.emit('hak', data);
-  
-      // You can send the response back to the passenger or perform any other actions as needed
-    });
-    socket.on('callme', (data) => {
-      // Handle the driver's response here
-     console.log('callDriverscallDriverscallDriverscallDrivers:', data);
-      socket.emit('callDrivers', data);
-  
-      // You can send the response back to the passenger or perform any other actions as needed
-    });
-  
-  });
-
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {

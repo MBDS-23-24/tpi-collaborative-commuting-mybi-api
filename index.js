@@ -115,6 +115,18 @@ io.on('connection', (socket) => {
       }
     });
   
+    socket.on('deleteMyrequest', (userId) => {
+      // Find the index of the request in driverRequests array based on user ID
+      const index = driverRequests.findIndex(request => request.passengerId === userId);
+  
+      if (index !== -1) {
+        const deletedRequest = driverRequests.splice(index, 1)[0]; // Remove the request and get it
+        
+        console.log(`Request deleted for passenger ID ${userId}`);
+      } else {
+        console.log(`No request found for passenger ID ${userId}`);
+      }
+    });
     socket.on('getDrivers', ({ originLat, originLong, destinationLat, destinationLong }) => {
       const filteredDrivers = filterDriversByOriginAndDestination(originLat, originLong, destinationLat, destinationLong);
       console.log('Je suis entreeeeeeeeeeeee');
@@ -144,9 +156,47 @@ io.on('connection', (socket) => {
      // socket.emit('SendrideRequest', data);
   
       addRideRequest(passengerId, driverId, originLat, originLong, destinationLat, destinationLong);
+      updateDriverStatus(driverId,"In Progress");
   
     });
-  
+    socket.on('rejectRequest', (data) => {
+      const { passengerId, driverId } = data;
+    
+      // Update the status of the ride request to "Rejected"
+      const index = driverRequests.findIndex(request => request.passengerId === passengerId && request.driverId === driverId);
+      updateDriverStatus(driverId,"Rejected");
+    
+      if (index !== -1) {
+        const deletedRequest = driverRequests.splice(index, 1)[0]; // Remove the request and get it
+    
+        // Emit an event to notify the passenger about the status update
+        //io.emit(`rideRequestStatusUpdated_${passengerId}`, { status: 'Rejected' });
+        io.emit(`rideRejected`, { status: 'Rejected' });
+    
+        console.log(`Ride request rejected for passenger ${passengerId} by driver ${driverId}`);
+      } else {
+        console.log(`Ride request not found for passenger ${passengerId} and driver ${driverId}`);
+      }
+    });
+
+    socket.on('acceptRequest', (data) => {
+      const { passengerId, driverId } = data;
+    
+      // Update the status of the ride request to "Accepted"
+      const index = driverRequests.findIndex(request => request.passengerId === passengerId && request.driverId === driverId);
+    
+      if (index !== -1) {
+        updateDriverStatus(driverId,"Accepted");
+    
+    
+        // Emit an event to notify the passenger about the status update
+        io.emit(`rideAccepted`, { status: 'Accepted' });
+    
+        console.log(`Ride request accepted for passenger ${passengerId} by driver ${driverId}`);
+      } else {
+        console.log(`Ride request not found for passenger ${passengerId} and driver ${driverId}`);
+      }
+    });
     socket.on('getDriverRequests', (driverId) => {
   
       const requests = getRideRequestsForDriver(driverId);
@@ -177,6 +227,13 @@ io.on('connection', (socket) => {
   // ********************************************    Functions of Map     ********************************************
 
   function addRideRequest(passengerId, driverId, originLat, originLong, destinationLat, destinationLong) {
+
+    const existingRequest = driverRequests.find(request => request.passengerId === passengerId && request.driverId === driverId);
+  
+    if (existingRequest) {
+      console.log('You have already sent a request to this driver.');
+      return; // Exit the function if a request already exists
+    }
     // Find the driver and passenger by their IDs
     const driver = drivers.find(driver => driver.userId === driverId);
     const passenger = passengers.find(passenger => passenger.userId === passengerId);
@@ -210,7 +267,18 @@ io.on('connection', (socket) => {
     
     return filteredRequests;
   }
+  function updateDriverStatus(driverId, newStatus) {
+    // Find the driver by their ID
+    const driverIndex = drivers.findIndex(driver => driver.userId === driverId);
   
+    // If driver is found, update their status
+    if (driverIndex !== -1) {
+      drivers[driverIndex].status = newStatus;
+      console.log(`Driver ${driverId} status updated to ${newStatus}`);
+    } else {
+      console.log(`Driver ${driverId} not found`);
+    }
+  }
   
   // Function to calculate the distance between two coordinates using the Haversine formula
   function calculateDistance(lat1, lon1, lat2, lon2) {

@@ -33,6 +33,11 @@ const Voyage = sequelize.define('Voyage', {
         type: Sequelize.DATE,
         defaultValue: Sequelize.NOW,
         field: 'Timestamp'
+    }, 
+    placeDisponible: {
+        type: Sequelize.INTEGER,
+        field: 'placeDisponible',
+        allowNull: false,
     }
 }, {
     timestamps: false

@@ -20,12 +20,7 @@ const setupSocketHandlers = require('./socket/socketHandlers.js');
 
 const server = http.createServer(app);
 const io = require('socket.io')(server);
-// client pour la partie message
-let clients = {};
-// Initialize arrays to store passengers and drivers separately
-let passengers = [];
-let drivers = [];
-let driverRequests = [];
+
 
 app.use(express.json()); // for parsing application/json
 
@@ -50,7 +45,7 @@ app.get('/', (req, res) => {
   res.send('Hello World!');
 });
 
-setupSocketHandlers(io, clients, passengers, drivers, driverRequests); 
+setupSocketHandlers(io); 
   
 
 const PORT = process.env.PORT || 3000;

@@ -14,7 +14,7 @@ const Trip = require('./models/tripModel.js');
 const app = express();
 
 
-const { createMultipleUsers } = require('./test/puplerdatabase.js');
+//const { createMultipleUsers } = require('./test/puplerdatabase.js');
 // WebSocket 
 
 const server = http.createServer(app);

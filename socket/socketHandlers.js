@@ -67,6 +67,13 @@ module.exports = function(io) {
             return null;
           }
         });
+
+        socket.on('sharePosition', (data) => {
+          const { senderId, recipientId, position } = data;
+          const roomName = `${senderId}_${recipientId}`;
+          socket.join(roomName);
+          socket.to(roomName).emit('positionUpdate', { senderId, position });
+        });
       
         socket.on('deleteDriver', (userId) => {
           const index = drivers.findIndex((driver) => driver.userId === userId);
@@ -78,7 +85,18 @@ module.exports = function(io) {
             return null;
           }
         });
+        socket.on('deleteDriverRequested', (userId) => {
+          // Find the index of the request in driverRequests array based on user ID
+          const index = driverRequests.findIndex(request => request.driverId === userId);
       
+          if (index !== -1) {
+            const deletedRequest = driverRequests.splice(index, 1)[0]; // Remove the request and get it
+            
+            console.log(`Request deleted for driverId ID ${userId}`);
+          } else {
+            console.log(`No request found for driverId ID ${userId}`);
+          }
+        });
         socket.on('deleteMyrequest', (userId) => {
           // Find the index of the request in driverRequests array based on user ID
           const index = driverRequests.findIndex(request => request.passengerId === userId);

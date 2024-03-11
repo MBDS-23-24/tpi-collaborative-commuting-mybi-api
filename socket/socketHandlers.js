@@ -6,10 +6,10 @@ let drivers = [];
 let driverRequests = [];
 
 // Import the map functions
-const mapFunctions = require('../map/functionMap.js');
+//const mapFunctions = require('../map/functionMap.js');
 
 //  module.exports = { filterPassengersByOriginAndDestination, filterDriversByOriginAndDestination, addRequest,calculateDistance,updateDriverStatus,getRideRequestsForDriver,addRideRequest };
-const { filterPassengersByOriginAndDestination, filterDriversByOriginAndDestination, addRequest,calculateDistance,updateDriverStatus,getRideRequestsForDriver,addRideRequest } = mapFunctions;
+//const { filterPassengersByOriginAndDestination, filterDriversByOriginAndDestination, addRequest,calculateDistance,updateDriverStatus,getRideRequestsForDriver,addRideRequest } = mapFunctions;
 
 module.exports = function(io) {
 

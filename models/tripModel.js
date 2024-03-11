@@ -68,4 +68,3 @@ Voyage.belongsToMany(User, { through: VoyagePassagers, foreignKey: 'voyageId', o
 User.belongsToMany(Voyage, { through: VoyagePassagers, foreignKey: 'userId', otherKey: 'voyageId' });
 
 module.exports = { Voyage, VoyagePassagers };
- 

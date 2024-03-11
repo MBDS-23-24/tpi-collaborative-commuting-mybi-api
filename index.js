@@ -13,9 +13,8 @@ const Message = require('./models/messageModel.js');
 const Trip = require('./models/tripModel.js');
 const app = express();
 
-const setupSocketHandlers = require('./socket/socketHandlers.js');
 
-//const { createMultipleUsers } = require('./test/puplerdatabase.js');
+const { createMultipleUsers } = require('./test/puplerdatabase.js');
 // WebSocket 
 
 const server = http.createServer(app);
@@ -45,6 +44,8 @@ app.get('/', (req, res) => {
   res.send('Hello World!');
 });
 
+
+const setupSocketHandlers = require('./socket/socketHandlers.js');
 setupSocketHandlers(io); 
   
 

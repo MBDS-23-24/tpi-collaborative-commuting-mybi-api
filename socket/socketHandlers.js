@@ -172,7 +172,7 @@ module.exports = function(io) {
         
         
             // Emit an event to notify the passenger about the status update
-            io.emit(`rideAccepted`, { status: 'Accepted' });
+            io.emit(`rideAccepted`, { driverId :driverId,status: 'Accepted' });
         
             console.log(`Ride request accepted for passenger ${passengerId} by driver ${driverId}`);
           } else {

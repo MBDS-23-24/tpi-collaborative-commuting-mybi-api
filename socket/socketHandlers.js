@@ -4,7 +4,7 @@ let clients = {};
 let passengers = [];
 let drivers = [];
 let driverRequests = [];
-
+            
 // Import the map functions
 //const mapFunctions = require('../map/functionMap.js');
 

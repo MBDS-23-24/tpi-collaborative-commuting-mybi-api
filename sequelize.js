@@ -1,7 +1,7 @@
 const Sequelize = require('sequelize');
 
-const sequelize = new Sequelize('commutingDB', 'commutingAdmin', 'badisBoucheffa123@', { // name, username, and password
-    host: 'commuting.database.windows.net',
+const sequelize = new Sequelize('commutingDB2', 'commutingAdmin', 'badisBoucheffa123@', { // name, username, and password
+    host: 'commutingdb.database.windows.net',
     dialect: 'mssql',
     dialectOptions: {
         options: {
@@ -11,8 +11,6 @@ const sequelize = new Sequelize('commutingDB', 'commutingAdmin', 'badisBoucheffa
 }); 
 
 // Importation des modèles
-
-
 sequelize.sync({ force: false }) // Set force to true only if you want to drop and recreate tables
     .then(() => {
         console.log('Database & tables created!');

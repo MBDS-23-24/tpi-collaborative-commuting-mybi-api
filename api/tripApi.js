@@ -5,16 +5,20 @@ const User = require('../models/userModel');
 const Sequelize = require('sequelize');
 const { authenticateToken } = require('./loginApi');
 
-// Post Trip
-router.post('/createTrip', authenticateToken,async (req,res)=>{
-    try{
-        const trip =  await tripModel.Voyage.create(req.body);
+router.post('/createTrip', authenticateToken, async (req, res) => {
+    try {
+        // Transformation des données reçues pour s'assurer qu'elles correspondent au modèle
+        const data = {
+            ...req.body,
+            timestamp: req.body.Timestamp // Assurez-vous que cela correspond au champ de votre modèle
+        };
+        const trip = await tripModel.Voyage.create(data);
         res.status(201).json(trip);
-    }catch(error){
+    } catch (error) {
         res.status(400).json({ error: error.message });
     }
-
 });
+
 
 // Get  trips
 
@@ -156,3 +160,36 @@ router.put('/updateTrip/:tripId/:userId', authenticateToken, async (req, res) =>
         res.status(500).json({ error: error.message || 'Internal Server Error' });
     }
 });
+
+
+// Endpoint pour récupérer les passagers d'un voyage spécifique
+router.get('/getPassengersByTrip/:tripId', authenticateToken, async (req, res) => {
+    const { tripId } = req.params;
+
+    try {
+        // Récupère les passagers en utilisant une jointure avec la table VoyagePassagers
+        const passengers = await User.findAll({
+            include: [{
+                model: tripModel.Voyage,
+                required: true,
+                through: {
+                     model:tripModel.VoyagePassagers,
+                    where: { voyageId: tripId }
+                }
+            }]
+        });
+
+        if (!passengers.length) {
+            return res.status(404).json({ message: "No passengers found for this trip" });
+        }
+
+        res.json(passengers);
+    } catch (error) {
+        console.error('Error fetching passengers by trip:', error);
+        res.status(500).json({ error: error.message || 'Internal Server Error' });
+    }
+});
+
+
+
+module.exports = router;

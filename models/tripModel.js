@@ -31,7 +31,7 @@ const Voyage = sequelize.define('Voyage', {
     },
     timestamp: {
         type: Sequelize.DATE,
-        defaultValue: Sequelize.NOW,
+        allowNull: false, // Assurez-vous que le champ timestamp est toujours fourni lors de la création d'un voyage
         field: 'Timestamp'
     }, 
     placeDisponible: {

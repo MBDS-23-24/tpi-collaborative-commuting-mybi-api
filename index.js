@@ -22,7 +22,7 @@ const server = http.createServer(app);
 const io = require('socket.io')(server);
 
 
-app.use(express.json()); // for parsing application/json
+app.use(express.json()); // for parsing applicat  ion/json
 
 // Middleware pour autoriser les requêtes CORS
 app.use((req, res, next) => {

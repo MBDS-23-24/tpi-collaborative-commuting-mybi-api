@@ -5,6 +5,8 @@ const User = require('../models/userModel');
 const { authenticateToken } = require('./loginApi');
 const { Op } = require('sequelize');
 const Sequelize = require('sequelize');
+const sequelize = require('./../sequelize.js');
+
 router.post('/createTrip', authenticateToken, async (req, res) => {
     try {
         // Transformation des données reçues pour s'assurer qu'elles correspondent au modèle
@@ -166,6 +168,7 @@ router.put('/updateTrip/:tripId/:userId', authenticateToken, async (req, res) =>
 
 
 // Endpoint pour récupérer les passagers d'un voyage spécifique
+/*
 router.get('/getPassengersByTrip/:tripId', authenticateToken, async (req, res) => {
     const { tripId } = req.params;
 
@@ -192,6 +195,73 @@ router.get('/getPassengersByTrip/:tripId', authenticateToken, async (req, res) =
         res.status(500).json({ error: error.message || 'Internal Server Error' });
     }
 });
+*/
+// Assuming tripModel is correctly set up and includes Voyage, User, and VoyagePassagers models
+router.get('/getPassengersByTrip/:tripId', authenticateToken, async (req, res) => {
+    const tripId = req.params.tripId;
+
+    const sql = `
+        SELECT  a.UserID , a.FirstName, a.LastName, a.Email, a.Password, a.PhotoURL, a.Biography, a.Role, b.status
+        FROM Users a, VoyagePassagers b, Voyages c
+        WHERE c.voyageId = ${tripId} AND a.UserID = b.userId AND b.voyageId = c.voyageId;
+    `;
+
+    try {
+        const passengers = await sequelize.query(sql, {
+            type: sequelize.QueryTypes.SELECT
+        });
+
+        // Transform the data if needed, or directly send the passengers data
+        res.json(passengers);
+    } catch (error) {
+        console.error('Error fetching passengers by trip:', error);
+        res.status(500).json({ error: error.message || 'Internal Server Error' });
+    }
+});
+
+
+
+
+// Endpoint pour ajouter un passager à un voyage
+router.post('/requestpassenger/:tripId/:userId', authenticateToken, async (req, res) => {
+    const tripId = parseInt(req.params.tripId);
+    const userId = parseInt(req.params.userId);
+
+    try {
+
+
+        // Vérifier d'abord si le voyage existe pour éviter d'ajouter un passager à un voyage inexistant
+        const tripExists = await tripModel.Voyage.findByPk(tripId);
+        if (!tripExists) {
+            return res.status(404).json({ message: "Trip not found" });
+        }
+
+        // Vérifier si l'utilisateur est déjà inscrit comme passager pour ce voyage
+            const existingEntry = await tripModel.VoyagePassagers.findOne({
+                where: {
+                    voyageId: tripId,
+                    userId: userId
+                }
+            });
+
+            if (existingEntry) {
+                return res.status(409).json({ message: "User already registered as passenger for this trip." });
+            }
+
+        // Créer une nouvelle entrée dans la table VoyagePassagers
+        const passengerEntry = await tripModel.VoyagePassagers.create({
+            voyageId: tripId,
+            userId: userId,
+            status: 'EN-ATTENTE'
+        });
+
+        // Répondre avec l'entrée créée et un code de statut HTTP 201
+        res.status(201).json(passengerEntry);
+    } catch (error) {
+        console.error('Error adding passenger:', error);
+        res.status(500).json({ error: error.message || 'Internal Server Error' });
+    }
+});
 
 
 ////////////////////// fonction ////////////////////
@@ -214,5 +284,8 @@ const extractLocationKeyword = (locationString) => {
   
     return `%${searchKeyword.toLowerCase()}%`;
   };
+
+
+
 
 module.exports = router;

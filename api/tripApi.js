@@ -2,9 +2,9 @@ const express = require('express');
 const router = express.Router();
 const tripModel = require('../models/tripModel');
 const User = require('../models/userModel');
-const Sequelize = require('sequelize');
 const { authenticateToken } = require('./loginApi');
-
+const { Op } = require('sequelize');
+const Sequelize = require('sequelize');
 router.post('/createTrip', authenticateToken, async (req, res) => {
     try {
         // Transformation des données reçues pour s'assurer qu'elles correspondent au modèle
@@ -108,31 +108,34 @@ router.get('/getTripById/:tripId', authenticateToken, async (req, res) => {
 });
 
 
-// Endpoint pour récupérer des voyages par filtres
 router.get('/getTripByFilter', authenticateToken, async (req, res) => {
-    // Récupérer les paramètres de requête pour les filtres
     const { depart, destination, dateDepartSouhaite } = req.query;
-
+  
+    const departKeyword = extractLocationKeyword(depart);
+    const destinationKeyword = extractLocationKeyword(destination);
+  
+    const startDate = new Date(dateDepartSouhaite);
+    startDate.setHours(startDate.getHours() - 4);
+    const endDate = new Date(dateDepartSouhaite);
+    endDate.setHours(endDate.getHours() + 4);
+  
     try {
-        // Filtrer les voyages selon les critères en s'assurant que les comparaisons sont insensibles à la casse
-        const trips = await Voyage.findAll({
-            where: {
-                // Utilise Sequelize.where et Sequelize.fn pour ignorer la casse lors de la comparaison
-                Depart: Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('Depart')), Sequelize.fn('LOWER', depart)),
-                Destination: Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('Destination')), Sequelize.fn('LOWER', destination)),
-                timestamp: {
-                    [Op.gte]: new Date(dateDepartSouhaite) // Assurez-vous que la date est correctement formatée
-                }
-            },
-            order: [['timestamp', 'DESC']] // Optionnel: trier par timestamp si nécessaire
-        });
-
-        res.json(trips);
+      const trips = await tripModel.Voyage.findAll({
+        where: {
+          // Utiliser Sequelize.fn pour appliquer la fonction LOWER à la colonne et Sequelize.where pour la comparaison
+          Depart: Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('Depart')), 'LIKE', Sequelize.fn('LOWER', departKeyword)),
+          Destination: Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('Destination')), 'LIKE', Sequelize.fn('LOWER', destinationKeyword)),
+          timestamp: { [Op.between]: [startDate, endDate] }
+        },
+        order: [['timestamp', 'DESC']]
+      });
+  
+      res.json(trips);
     } catch (error) {
-        console.error('Error fetching trips by filter:', error);
-        res.status(500).json({ error: error.message || 'Internal Server Error' });
+      console.error('Error fetching trips by filter:', error);
+      res.status(500).json({ error: error.message || 'Internal Server Error' });
     }
-});   
+  });
 
 
 // put trip
@@ -180,7 +183,7 @@ router.get('/getPassengersByTrip/:tripId', authenticateToken, async (req, res) =
         });
 
         if (!passengers.length) {
-            return res.status(404).json({ message: "No passengers found for this trip" });
+            return res.status(204).json({ message: "No passengers found for this trip" });
         }
 
         res.json(passengers);
@@ -191,5 +194,25 @@ router.get('/getPassengersByTrip/:tripId', authenticateToken, async (req, res) =
 });
 
 
+////////////////////// fonction ////////////////////
+
+const extractLocationKeyword = (locationString) => {
+    if (!locationString) return '%';
+    const parts = locationString.split(',').map(part => part.trim());
+    let searchKeyword;
+  
+    // Plus de deux virgules, prendre l'élément à l'index length - 3
+    if (parts.length >= 3) {
+      searchKeyword = parts[parts.length - 3];
+    } else if (parts.length === 2) {
+      // Une seule virgule, prendre le premier élément
+      searchKeyword = parts[0];
+    } else {
+      // Aucune ou une virgule, prendre la chaîne entière
+      searchKeyword = locationString;
+    }
+  
+    return `%${searchKeyword.toLowerCase()}%`;
+  };
 
 module.exports = router;

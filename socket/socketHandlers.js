@@ -109,18 +109,19 @@ module.exports = function(io) {
             console.log(`No request found for passenger ID ${userId}`);
           }
         });
-        socket.on('getDrivers', ({ originLat, originLong, destinationLat, destinationLong }) => {
-          const filteredDrivers = filterDriversByOriginAndDestination(originLat, originLong, destinationLat, destinationLong);
+        socket.on('getDrivers', ({ originLat, originLong, destinationLat, destinationLong, requiredSeats  }) => {
+          const filteredDrivers = filterDriversByOriginAndDestinationAndSeats(originLat, originLong, destinationLat, destinationLong, requiredSeats);
           console.log('Je suis entreeeeeeeeeeeee');
           console.log('requestRide:', filteredDrivers);
     
           socket.emit('drivers', filteredDrivers);
         });
       
-        socket.on('getPassengers', ({ originLat, originLong, destinationLat, destinationLong }) => {
-          const filteredPassengers = filterPassengersByOriginAndDestination(originLat, originLong, destinationLat, destinationLong);
+        socket.on('getPassengers', ({ originLat, originLong, destinationLat, destinationLong, requiredSeats }) => {
+          const filteredPassengers = filterPassengersByOriginAndDestinationAndSeats(originLat, originLong, destinationLat, destinationLong, requiredSeats);
           socket.emit('passengers', filteredPassengers);
           console.log('Filtered passengers:', filteredRequests);
+          console.log('requestRide:', filteredPassengers);
       
          // socket.emit('callDrivers', filteredPassengers);
       
@@ -132,13 +133,14 @@ module.exports = function(io) {
     
         // Handle ride request from passenger to driver
         socket.on('requestRide', (data) => {
-          const { driverId, passengerId, originLat, originLong, destinationLat, destinationLong } = data;
+          const { driverId, passengerId, originLat, originLong, destinationLat, destinationLong, requiredSeats } = data;
           console.log('requestRide:', driverId);
           //socket.emit('hak', data);
          // socket.emit('SendrideRequest', data);
       
-          addRideRequest(passengerId, driverId, originLat, originLong, destinationLat, destinationLong);
+          addRideRequest(passengerId, driverId, originLat, originLong, destinationLat, destinationLong, requiredSeats);
           updateDriverStatus(driverId,"In Progress");
+          updateDriverSeats(driverId,requiredSeats);
       
         });
         socket.on('rejectRequest', (data) => {
@@ -267,6 +269,26 @@ function addRideRequest(passengerId, driverId, originLat, originLong, destinatio
       console.log(`Driver ${driverId} not found`);
     }
   }
+
+  function updateDriverSeats(driverId, requiredSeats) {
+    const driver = drivers.find(driver => driver.userId === driverId);
+
+    if (driver) {
+        if (requiredSeats <= driver.seats) {
+            // Soustraire le nombre de sièges demandés du nombre de sièges disponibles
+            driver.seats -= requiredSeats;
+            // Retourner le nombre de sièges restants
+            console.log(`Driver ${driverId} seats updated: ${driver.seats} seats remaining`);
+            return driver.seats;
+        } else {
+            // Le nombre de sièges demandés est supérieur au nombre de sièges disponibles
+            return -1; 
+        }
+    } else {
+        // Le conducteur n'est pas trouvé
+        return -2; 
+    }
+}
   
   // Function to calculate the distance between two coordinates using the Haversine formula
   function calculateDistance(lat1, lon1, lat2, lon2) {
@@ -297,16 +319,27 @@ function addRideRequest(passengerId, driverId, originLat, originLong, destinatio
   }
   
   // Function to filter drivers based on origin and destination
-  function filterDriversByOriginAndDestination(originLat, originLong, destinationLat, destinationLong) {
+  function filterDriversByOriginAndDestinationAndSeats(originLat, originLong, destinationLat, destinationLong, requiredSeats) {
     return drivers.filter((driver) => {
       const originDistance = calculateDistance(originLat, originLong, driver.originLat, driver.originLong);
       const destinationDistance = calculateDistance(destinationLat, destinationLong, driver.destinationLat, driver.destinationLong);
-      return originDistance <= 300 && destinationDistance <= 300;
+      if (originDistance <= 300 && destinationDistance <= 300) {
+        // Check if the driver has enough seats for the passenger
+        if (driver.seats >= requiredSeats) {
+            console.log("Driver disponible");
+            return true;
+        }else{
+          console.log("Driver non disponible : pas assez de sieges");
+          return false;
+        }
+    }
+    console.log("Driver non disponible : Distance trop grande");
+    return false;
     });
   }
   
   // Function to filter passengers based on origin and destination
-  function filterPassengersByOriginAndDestination(originLat, originLong, destinationLat, destinationLong) {
+  function filterPassengersByOriginAndDestinationAndSeats(originLat, originLong, destinationLat, destinationLong, requiredSeats) {
     return passengers.filter((passenger) => {
       const originDistance = calculateDistance(originLat, originLong, passenger.originLat, passenger.originLong);
       const destinationDistance = calculateDistance(destinationLat, destinationLong, passenger.destinationLat, passenger.destinationLong);

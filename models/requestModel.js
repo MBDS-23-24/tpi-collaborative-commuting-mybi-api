@@ -31,6 +31,11 @@ const Request = {
         defaultValue: Date.now(),
         field: 'Time'
     },
+    seats: {
+        type: 'INTEGER', // Adjust the data type based on your requirements
+        allowNull: false,
+        field: 'Seats' // Add the Seats field
+    },
     status: {
         type: 'STRING', // Adjust the data type based on your requirements
         allowNull: false,

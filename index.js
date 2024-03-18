@@ -4,6 +4,7 @@ const http = require('http');
 const userApi = require('./api/userApi');
 const messageApi = require('./api/messageApi');
 const avisApi = require('./api/avisApi.js');
+const tripApi = require('./api/tripApi.js');
 
 const { router: loginApi, authenticateToken } = require('./api/loginApi'); // Modification ici
 const User = require('./models/userModel.js');
@@ -21,7 +22,7 @@ const server = http.createServer(app);
 const io = require('socket.io')(server);
 
 
-app.use(express.json()); // for parsing application/json
+app.use(express.json()); // for parsing applicat  ion/json
 
 // Middleware pour autoriser les requêtes CORS
 app.use((req, res, next) => {
@@ -38,6 +39,7 @@ app.use('/api/users', userApi);
 app.use('/api/avis', avisApi);
 app.use('',loginApi);
 app.use('/api/messages', messageApi);
+app.use('/api/trip', tripApi);
 
 // Express route to serve static files or other routes if needed
 app.get('/', (req, res) => {

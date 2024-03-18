@@ -60,7 +60,7 @@
             }
         },
         status: {
-            type: Sequelize.ENUM('EN-ATTENTE', 'ACCETPTE', 'REFUSE'),
+            type: Sequelize.ENUM('EN-ATTENTE', 'ACCETPTE', '    '),
             field: 'status'  // Column name in the database
         }
     }, {

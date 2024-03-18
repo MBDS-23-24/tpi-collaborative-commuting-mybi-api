@@ -76,9 +76,9 @@ router.get('/getTripPassager/:userId',authenticateToken, async (req,res)=>{
         const passengerTrips = await  tripModel.Voyage.findAll({
             include: [{
                 model: User,
-                as: 'Passagers',
+                as: 'Users',
                 required: true,
-                through: { model: VoyagePassagers, where: { userId: userId } }
+                through: { model: tripModel.VoyagePassagers, where: { userId: userId } }
             }],
             order: [['timestamp', 'DESC']]
 
@@ -262,6 +262,46 @@ router.post('/requestpassenger/:tripId/:userId', authenticateToken, async (req, 
         res.status(500).json({ error: error.message || 'Internal Server Error' });
     }
 });
+
+
+// endpoinr qui vas changer l'etat d'un passanger 
+
+router.put('/changeEtatPassenger/:voyageId/:userId', authenticateToken, async (req, res) => {
+    const { voyageId, userId } = req.params;
+    const { status } = req.body;
+
+    try {
+        const voyagePassager = await tripModel.VoyagePassagers.findOne({
+            where: {
+                voyageId: voyageId,
+                userId: userId
+            }
+        });
+
+        if (!voyagePassager) {
+            return res.status(404).send({ message: 'Passager non trouvé dans ce voyage' });
+        }
+
+        // Update the passenger status
+        await voyagePassager.update({ status: status });
+
+        // If the passenger is accepted, decrement the available seats
+        if (status == "ACCETPTE") {
+            const trip = await tripModel.Voyage.findByPk(voyageId);
+
+            if (trip) {
+                const newNumberSeat = trip.placeDisponible - 1;
+                await trip.update({ placeDisponible: newNumberSeat });
+            }
+        }
+
+        res.status(200).send({ message: 'Statut mis à jour avec succès' });
+    } catch (error) {
+        console.error('Erreur mise à jour statut passager:', error);
+        res.status(500).send({ message: 'Erreur lors de la mise à jour du statut' });
+    }
+});
+
 
 
 ////////////////////// fonction ////////////////////

@@ -52,6 +52,12 @@ router.get('/:id', authenticateToken, async (req, res) => {
 // Update a user
 router.put('/:id', authenticateToken,async (req, res) => {
     try {
+        if (req.body.password) {
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(req.body.password, salt);
+            req.body.password = hashedPassword;
+        }
+        
         const updated = await User.update(req.body, {
             where: { userID: req.params.id }
         });

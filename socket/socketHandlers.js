@@ -155,7 +155,7 @@ module.exports = function(io) {
         
             // Emit an event to notify the passenger about the status update
             //io.emit(`rideRequestStatusUpdated_${passengerId}`, { status: 'Rejected' });
-            io.emit(`rideRejected`, { status: 'Rejected' });
+            io.emit(`rideRejected`, { status: 'Rejected',userId :passengerId});
         
             console.log(`Ride request rejected for passenger ${passengerId} by driver ${driverId}`);
           } else {
@@ -174,7 +174,7 @@ module.exports = function(io) {
         
         
             // Emit an event to notify the passenger about the status update
-            io.emit(`rideAccepted`, { driverId :driverId,status: 'Accepted' });
+            io.emit(`rideAccepted`, { driverId :driverId,status: 'Accepted',userId :passengerId });
 
         
             console.log(`Ride request accepted for passenger ${passengerId} by driver ${driverId}`);

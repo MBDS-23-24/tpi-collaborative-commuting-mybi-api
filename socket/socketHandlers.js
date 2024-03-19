@@ -175,10 +175,20 @@ module.exports = function(io) {
         
             // Emit an event to notify the passenger about the status update
             io.emit(`rideAccepted`, { driverId :driverId,status: 'Accepted' });
+
         
             console.log(`Ride request accepted for passenger ${passengerId} by driver ${driverId}`);
           } else {
             console.log(`Ride request not found for passenger ${passengerId} and driver ${driverId}`);
+          }
+
+          const index2 = driverRequests.findIndex(request => request.passengerId === userId);
+      
+          if (index2 !== -1) {
+            const deletedRequest = driverRequests.splice(index2, 1)[0]; // Remove the request and get it
+            console.log(`Request deleted for passenger ID ${userId}`);
+          } else {
+            console.log(`No request found for passenger ID ${userId}`);
           }
         });
         socket.on('getDriverRequests', (driverId) => {

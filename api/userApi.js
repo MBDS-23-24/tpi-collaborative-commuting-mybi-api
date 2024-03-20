@@ -25,6 +25,23 @@ router.post('/', async (req, res) => {
     }
 });
 
+router.post('/checkEmail', async (req, res) => {
+    try {
+        const { email } = req.body;
+        const user = await User.findOne({ where: { email: email } });
+        if (user) {
+            // L'email existe déjà dans la base de données
+            res.json({ exists: true });
+        } else {
+            // L'email n'existe pas dans la base de données
+            res.json({ exists: false });
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ error: error.message || 'Internal Server Error' });
+    }
+});
+
 // Get all users
 router.get('/',authenticateToken, async (req, res) => {
     try {
@@ -52,15 +69,10 @@ router.get('/:id', authenticateToken, async (req, res) => {
 // Update a user
 router.put('/:id', authenticateToken,async (req, res) => {
     try {
-        if (req.body.password) {
-            const salt = await bcrypt.genSalt(10);
-            const hashedPassword = await bcrypt.hash(req.body.password, salt);
-            req.body.password = hashedPassword;
-        }
-        
         const updated = await User.update(req.body, {
             where: { userID: req.params.id }
         });
+        console.log(req.body);
         if (updated) {
             const updatedUser = await User.findByPk(req.params.id);
             res.status(200).json(updatedUser);

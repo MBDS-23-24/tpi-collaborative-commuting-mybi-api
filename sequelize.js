@@ -1,6 +1,7 @@
 const Sequelize = require('sequelize');
 
-const sequelize = new Sequelize('commutingDB2', 'commutingAdmin', 'badisBoucheffa123@', { // name, username, and password
+const sequelize = new Sequelize('CommutingDB2', 'commutingAdmin', 'badisBoucheffa123@', { // name, username, and password
+
     host: 'commutingdb.database.windows.net',
     dialect: 'mssql',
     dialectOptions: {

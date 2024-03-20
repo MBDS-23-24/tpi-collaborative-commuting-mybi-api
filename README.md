@@ -1,71 +1,20 @@
-# Les Endpoints
+# LaLabi
 
-## GET /api/users
+## Documentation API
 
-Description: Obtenir tous les utilisateurs.
-Exemple de réponse (réponse de la requête) :
+Pour une liste complète des endpoints et des détails sur leur utilisation, veuillez consulter notre [documentation Postman](https://documenter.getpostman.com/view/30502097/2sA2xpU9pc)
 
-```json
-[
-    {
-        "userID": 1,
-        "firstName": "John",
-        "lastName": "Doe",
-        "email": "johndoe@example.com",
-        "photoURL": "https://example.com/johndoe.jpg",
-        "biography": "Un navetteur qui aime le covoiturage."
-    },
-    {
-        "userID": 2,
-        "firstName": "Jane",
-        "lastName": "Smith",
-        "email": "janesmith@example.com",
-        "photoURL": "https://example.com/janesmith.jpg",
-        "biography": "Passionnée par la réduction de la congestion routière."
-    },
-    // ... plus d'objets utilisateur ...
-]
+## GitHub Actions
 
-```
+Notre pipeline CI/CD est géré par GitHub Actions, automatisant  le déploiement de notre application. Chaque push et pull request sur la branche principale déclenche notre suite de tests automatisés, garantissant ainsi que chaque nouvelle modification maintient la qualité et la stabilité de l'application.
 
-## POST /api/users
+### Comment contribuer
 
-Description: Créer un nouvel utilisateur.
-Le corps de la requête doit inclure les données de l'utilisateur au format JSON, par exemple :
+Fork le projet sur GitHub.
+Clonez votre fork sur votre machine locale.
+Créez une nouvelle branche pour votre contribution.
+Faites vos changements et committez-les.
+Poussez votre branche et créez une pull request sur le projet principal.
 
-```json
-
-{
-    "firstName": "Alice",
-    "lastName": "Johnson",
-    "email": "alice@example.com",
-    "password": "password123",
-    "photoURL": "https://example.com/alice.jpg",
-    "biography": "Enthousiaste du covoiturage."
-}
-
-```
-##  PUT /api/users/:id
-
-
-Description: Mettre à jour un utilisateur par ID.
-Le corps de la requête doit inclure les données mises à jour de l'utilisateur au format JSON, par exemple :
-
-```json
-
-{
-    "firstName": "Prénom mis à jour",
-    "lastName": "Nom de famille mis à jour",
-    "email": "misajour@example.com",
-    "photoURL": "https://example.com/misajour.jpg",
-    "biography": "Biographie mise à jour."
-}
-```
-
-##  DELETE /api/users/:id
-
-
-Description: Supprimer un utilisateur par ID.
-Exemple de réponse (après la suppression réussie) :
-
-"Utilisateur supprimé"
+### Licence
+Ce projet est sous licence de l'universite de cote d'azure (MBDS Miage) . 

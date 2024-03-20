@@ -206,6 +206,30 @@ module.exports = function(io) {
       
           // You can send the response back to the passenger or perform any other actions as needed
         });
+
+        // faire un cleanUp de tous les drivers et passagers
+        socket.on('cleanUp', () => {
+            // Réinitialiser les collections
+            clients = {};
+            passengers = [];
+            drivers = [];
+            driverRequests = [];
+
+            // Parcourir tous les sockets connectés pour les faire quitter toutes leurs rooms
+            io.of("/").sockets.forEach((s) => {
+                s.rooms.forEach((room) => {
+                    if (room !== s.id) { // Ne pas faire quitter sa propre room socket
+                        s.leave(room);
+                    }
+                });
+            });
+
+            // Optionnellement, émettre un événement pour notifier les clients du nettoyage
+            io.emit('cleanUpDone', { message: 'Le nettoyage a été effectué.' });
+
+            console.log("Nettoyage complet effectué.");
+        });
+
       });
 
 };

@@ -301,7 +301,7 @@ function addRideRequest(passengerId, driverId, originLat, originLong, destinatio
     return drivers.filter((driver) => {
       const originDistance = calculateDistance(originLat, originLong, driver.originLat, driver.originLong);
       const destinationDistance = calculateDistance(destinationLat, destinationLong, driver.destinationLat, driver.destinationLong);
-      return originDistance <= 300 && destinationDistance <= 300;
+      return originDistance <= 3000 && destinationDistance <= 3000;
     });
   }
   

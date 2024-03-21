@@ -314,11 +314,9 @@ function addRideRequest(passengerId, driverId, originLat, originLong, destinatio
     io.emit('request', data); //il faut ajouter ici marwna
   
     if (data.type === 'PASSAGER') {
-      driverRequests = [];
       passengers  = [];
       passengers.push(data);
     } else if (data.type === 'CONDUCTEUR') {
-      driverRequests = [];
       drivers = [];
       drivers.push(data);
     }
